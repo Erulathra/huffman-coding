@@ -1,2 +1,2 @@
-# huffman-coding
-Send and recive compressed data via socket
+# Huffman Coding
+Send and receive compressed data via socket
