@@ -4,7 +4,9 @@ import huffman as h
 
 
 def main():
-    message = bytes("TO BE OR NOT TO BE", 'utf-8')
+    message_str = "Założyć gęślą jaźń"
+    print(message_str)
+    message = bytes(message_str, 'utf-8')
     frequency_list = h.calculate_frequency(message)
     root = h.create_huffman_tree(frequency_list)
 
