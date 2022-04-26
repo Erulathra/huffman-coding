@@ -11,9 +11,14 @@ def main():
     dictionary = h.create_huffman_dictionary(root)
     compressed = h.compress(message, dictionary)
 
+    print(dictionary)
+
     test = bitarray()
     test.frombytes(compressed)
     print(test)
+
+    decompressed = h.decompress(compressed, len(message), root)
+    print(str(decompressed, 'utf-8'))
 
 
 if __name__ == "__main__":

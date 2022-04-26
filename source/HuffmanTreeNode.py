@@ -14,11 +14,11 @@ class HuffmanTreeNode:
         return self.__frequency
 
     @property
-    def byte(self):
+    def byte(self) -> bytes:
         return self.__byte
 
     @property
-    def left(self):
+    def left(self) -> HuffmanTreeNode:
         return self.__left
 
     @left.setter
@@ -27,7 +27,7 @@ class HuffmanTreeNode:
         value.__root = self
 
     @property
-    def right(self):
+    def right(self) -> HuffmanTreeNode:
         return self.__right
 
     @right.setter
@@ -36,7 +36,7 @@ class HuffmanTreeNode:
         value.__root = self
 
     @property
-    def root(self):
+    def root(self) -> HuffmanTreeNode:
         return self.__root
 
     def __lt__(self, other):

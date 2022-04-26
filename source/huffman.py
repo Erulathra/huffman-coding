@@ -95,3 +95,26 @@ def extract_code_from_leaf(leaf) -> bitarray:
     return code[::-1]
 
 
+def decompress(message: bytes, message_length: int, huffman_tree_root: HuffmanTreeNode) -> bytes:
+    message_as_bits = bitarray()
+    message_as_bits.frombytes(message)
+
+    result = bytearray()
+
+    # repeat until message is not complete
+    while len(result) != message_length:
+        node = huffman_tree_root
+
+        # Goes through all nodes and decodes byte
+        while node.right is not None and node.left is not None:
+            bit = message_as_bits.pop(0)
+            if bit == 1:
+                node = node.right
+            else:
+                node = node.left
+
+        # Add decoded byte to result
+        result += node.byte
+
+    return bytes(result)
+
