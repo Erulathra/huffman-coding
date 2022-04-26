@@ -1,28 +1,12 @@
 from __future__ import annotations
+
 import collections
 import heapq
 
+from bitarray import bitarray
 
-class HuffmanTreeNode:
-    def __init__(self, byte: bytes, frequency: int):
-        self.__byte = byte
-        self.__frequency = frequency
-        self.left = None
-        self.right = None
-
-    @property
-    def frequency(self):
-        return self.__frequency
-
-    def __lt__(self, other):
-        return self.__frequency < other.__frequency
-
-    def __eq__(self, other: HuffmanTreeNode):
-        if other is None:
-            return False
-        if not isinstance(other, HuffmanTreeNode):
-            return False
-        return self.__frequency == other.__frequency
+from HuffmanTreeNode import HuffmanTreeNode
+from HuffmanTreeNode import get_all_leaves
 
 
 # generate frequency dictionary
@@ -30,14 +14,14 @@ def calculate_frequency(message: bytes) -> list[tuple[bytes, int]]:
     frequency_list = collections.Counter(message).most_common()
     frequency_list = list(reversed(frequency_list))
 
-    result = normalize_frequency_list(frequency_list)
+    frequency_list = normalize_frequency_list(frequency_list)
 
-    return result
+    return frequency_list
 
 
 def normalize_frequency_list(frequency_list):
     result = []
-    i = 0
+    i = 1
     previous_frequency = frequency_list[0][1]
     for byte, frequency in frequency_list:
         if frequency != previous_frequency:
@@ -46,6 +30,7 @@ def normalize_frequency_list(frequency_list):
         previous_frequency = frequency
 
         result.append((byte.to_bytes(1, 'big'), i))
+        # result.append((byte.to_bytes(1, 'big'), frequency))
     return result
 
 
@@ -71,4 +56,42 @@ def create_huffman_tree(frequency_list: list[tuple[bytes, int]]) -> HuffmanTreeN
 
     return trees_list[0]
 
-#TODO: Check huffman tree after list normalization
+
+def compress(message: bytes, dictionary: dict[bytes, bitarray]) -> bytes:
+    result = bitarray()
+
+    # encode all bytes and add them to result
+    for byte in message:
+        byte = byte.to_bytes(1, 'big')
+        result += dictionary[byte]
+
+    return result.tobytes()
+
+
+# creates dictionary {byte: huffman_code}
+def create_huffman_dictionary(huffman_tree_root: HuffmanTreeNode) -> dict[bytes, bitarray]:
+    result = {}
+
+    for leaf in get_all_leaves(huffman_tree_root):
+        code = extract_code_from_leaf(leaf)
+        result[leaf.byte] = code
+
+    return result
+
+
+def extract_code_from_leaf(leaf) -> bitarray:
+    code = bitarray()
+    node = leaf
+    while node.root is not None:
+        # add to code 1 when node is right child and 0 when is left child
+        if node.root.right is node:
+            code.append(1)
+        else:
+            code.append(0)
+
+        node = node.root
+
+    # reverse code
+    return code[::-1]
+
+
