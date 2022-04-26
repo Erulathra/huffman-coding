@@ -29,8 +29,7 @@ def normalize_frequency_list(frequency_list):
 
         previous_frequency = frequency
 
-        result.append((byte.to_bytes(1, 'big'), i))
-        # result.append((byte.to_bytes(1, 'big'), frequency))
+        result.append((byte.to_bytes(1, 'little'), i))
     return result
 
 
@@ -57,12 +56,20 @@ def create_huffman_tree(frequency_list: list[tuple[bytes, int]]) -> HuffmanTreeN
     return trees_list[0]
 
 
+def encode(message: bytes, frequency_table: list[tuple[bytes, int]]) -> bytes:
+    huffman_root = create_huffman_tree(frequency_table)
+    huffman_dictionary = create_huffman_dictionary(huffman_root)
+    huffman_message = compress(message, huffman_dictionary)
+
+    return huffman_message
+
+
 def compress(message: bytes, dictionary: dict[bytes, bitarray]) -> bytes:
     result = bitarray()
 
     # encode all bytes and add them to result
     for byte in message:
-        byte = byte.to_bytes(1, 'big')
+        byte = byte.to_bytes(1, 'little')
         result += dictionary[byte]
 
     return result.tobytes()
