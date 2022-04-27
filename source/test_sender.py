@@ -1,21 +1,21 @@
 import socket
+import time
 
 import tcp_conection as con
 
-HOST = "127.0.0.1"
+HOST = "192.168.184.132"
 PORT = 61111
 
-text = "Trzy Pierścienie dla królów elfów pod otwartym niebem, \n \
-        Siedem dla władców krasnali w ich kamiennych pałacach, \n \
-        Dziewięć dla śmiertelników, ludzi śmierci podległych, \n \
-        Jeden dla Władcy Ciemności na czarnym tronie \n \
-        W Krainie Mordor, gdzie zaległy cienie, \n \
-        Jeden, by wszystkimi rządzić, Jeden, by wszystkie odnaleźć, \n \
-        Jeden, by wszystkie zgromadzić i w ciemności związać \n \
-        W Krainie Mordor, gdzie zaległy cienie."
+text = "Bartosz ma Nogę :3"
 message = bytes(text, 'utf-8')
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
-    con.send_data(s, message)
-    print("Wysłano")
+    for i in range(60):
+        try:
+            s.connect((HOST, PORT))
+            con.send_data(s, message)
+            print("Wysłano")
+            break
+        except ConnectionRefusedError:
+            print(f"{i + 1} Odbiorca nie nawiązał połączenia")
+            time.sleep(1)

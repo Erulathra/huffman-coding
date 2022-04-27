@@ -1,7 +1,7 @@
 import socket
 import tcp_conection as com
 
-HOST = "127.0.0.1"
+HOST = ""
 PORT = 61111
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
