@@ -9,6 +9,12 @@ from HuffmanTreeNode import HuffmanTreeNode
 from HuffmanTreeNode import get_all_leaves
 
 
+# Code description:
+# [CORE] - higher-order functions that are supposed to be called by user
+# [UTIL] - small, self-describing function
+
+
+# [CORE]
 # generate frequency dictionary
 def calculate_frequency(message: bytes) -> list[tuple[bytes, int]]:
     frequency_list = collections.Counter(message).most_common()
@@ -19,6 +25,9 @@ def calculate_frequency(message: bytes) -> list[tuple[bytes, int]]:
     return frequency_list
 
 
+# [UTIL]
+# converts bytes of message to have an order of little endian
+# and adds info about packet number
 def normalize_frequency_list(frequency_list):
     result = []
     i = 1
@@ -33,6 +42,8 @@ def normalize_frequency_list(frequency_list):
     return result
 
 
+# [UTIL]
+# takes list, converts to heap queue and turns it to tree
 def create_huffman_tree(frequency_list: list[tuple[bytes, int]]) -> HuffmanTreeNode:
     # generate trees with one node
     trees_list = [HuffmanTreeNode(byte, frequency) for byte, frequency in frequency_list]
@@ -56,6 +67,8 @@ def create_huffman_tree(frequency_list: list[tuple[bytes, int]]) -> HuffmanTreeN
     return trees_list[0]
 
 
+# [CORE]
+# creates tree and dictionary, then compresses message
 def encode(message: bytes, frequency_table: list[tuple[bytes, int]]) -> bytes:
     huffman_root = create_huffman_tree(frequency_table)
     huffman_dictionary = create_huffman_dictionary(huffman_root)
@@ -64,6 +77,8 @@ def encode(message: bytes, frequency_table: list[tuple[bytes, int]]) -> bytes:
     return huffman_message
 
 
+# [UTIL]
+# encodes bytes by exchanging them with their counterpart from dictionary
 def compress(message: bytes, dictionary: dict[bytes, bitarray]) -> bytes:
     result = bitarray()
 
@@ -85,7 +100,8 @@ def create_huffman_dictionary(huffman_tree_root: HuffmanTreeNode) -> dict[bytes,
 
     return result
 
-
+# [UTIL]
+# reads code from leaf
 def extract_code_from_leaf(leaf) -> bitarray:
     code = bitarray()
     node = leaf
@@ -102,6 +118,9 @@ def extract_code_from_leaf(leaf) -> bitarray:
     return code[::-1]
 
 
+# [CORE]
+# decodes message by converting it to bytes and
+# checking real value of each on huffman tree
 def decompress(message: bytes, message_length: int, huffman_tree_root: HuffmanTreeNode) -> bytes:
     message_as_bits = bitarray()
     message_as_bits.frombytes(message)
