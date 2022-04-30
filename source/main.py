@@ -1,7 +1,7 @@
 from genericpath import exists
-from rich.markdown import Markdown
 from rich.console import Console
 from rich.prompt import Prompt
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, MofNCompleteColumn
 import socket
 import time
 import tcp_conection as con
@@ -11,6 +11,11 @@ def cls():
     os.system('cls' if os.name=='nt' else 'clear')
 
 console = Console()
+progress = Progress(SpinnerColumn(), \
+    TextColumn("[progress.description]{task.description}"), \
+    BarColumn(), \
+    MofNCompleteColumn(), \
+    transient=True)
 waiter_txt = "Wciśnij dowolny klawisz, aby kontynuować..."
 
 def main():
@@ -63,15 +68,18 @@ def get_message(path) -> (str, str):
 
 def send_message(message_str, host, port):
     message = bytes(message_str, 'utf-8')
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s, progress as task_progress:
+        task_connect = task_progress.add_task("Próba nawiązania połączenia...", total=60)
         for i in range(60):
             try:
                 s.connect((host, port))
                 con.send_data(s, message)
+                task_progress.update(task_connect, completed=60, visible=False)
                 input(f"Wysłano! {waiter_txt}")
                 break
             except ConnectionRefusedError:
-                console.print(f"{i + 1} Odbiorca nie nawiązał połączenia")
+                # console.print(f"{i + 1} Odbiorca nie nawiązał połączenia")
+                task_progress.update(task_connect, advance=1)
                 time.sleep(1)
 
 
