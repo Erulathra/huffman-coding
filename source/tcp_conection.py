@@ -11,7 +11,7 @@ class message_type_enum(Enum):
 def create_connection_header(message_length: int, content_length, frequency_list: list[tuple[bytes, int]],
                              file_name: str = "") -> bytes:
     message_type = message_type_enum.text
-    if file_name == "":
+    if len(file_name):
         message_type = message_type_enum.file
 
     # add message type, message length, content length and file name to header and fill to 256 bytes with 0s
@@ -40,7 +40,8 @@ def read_data_from_header(header: bytes) -> (message_type_enum, int, str, str, l
         raise WrongHeaderException()
 
     # read message type, message length, content length and file name
-    if header[0] == bytes('T', 'ascii'):
+    test = header[0]
+    if header[0] == 84:
         message_type = message_type_enum.text
     else:
         message_type = message_type_enum.file
@@ -67,7 +68,8 @@ def send_data(sender_socket: socket.socket, message: bytes, file_name: str = "")
     huffman_message = h.encode(message, frequency_table)
 
     # generate and send header
-    header = create_connection_header(len(message), len(huffman_message), frequency_table, file_name)
+    header = create_connection_header(len(message), len(
+        huffman_message), frequency_table, file_name)
     sender_socket.sendall(header)
 
     # send data
@@ -76,13 +78,14 @@ def send_data(sender_socket: socket.socket, message: bytes, file_name: str = "")
 
 def receive_data(receiver_socket: socket.socket) -> tuple[message_type_enum, bytes]:
     header = receiver_socket.recv(1024)
-    message_type, message_length, content_length, filename, frequency_table = read_data_from_header(header)
+    message_type, message_length, content_length, filename, frequency_table = read_data_from_header(
+        header)
     message = receiver_socket.recv(content_length)
 
     huffman_root = h.create_huffman_tree(frequency_table)
     decoded_message = h.decompress(message, message_length, huffman_root)
 
-    return message_type, decoded_message
+    return message_type, filename, decoded_message
 
 
 class WrongHeaderException(Exception):
