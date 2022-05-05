@@ -72,7 +72,7 @@ def read_data_from_header(header: bytes) -> (message_type_enum, int, str, str, l
 
 
 # [CORE]
-
+# prepare message with header and send
 def send_data(sender_socket: socket.socket, message: bytes, file_name: str = ""):
     # encode message and calculate frequency table
     frequency_table = h.calculate_frequency(message)
@@ -87,6 +87,8 @@ def send_data(sender_socket: socket.socket, message: bytes, file_name: str = "")
     sender_socket.sendall(huffman_message)
 
 
+# [CORE]
+# get header from socket, read metadata, then create huffman tree and decode message
 def receive_data(receiver_socket: socket.socket) -> tuple[message_type_enum, bytes]:
     header = receiver_socket.recv(1024)
     message_type, message_length, content_length, filename, frequency_table = read_data_from_header(
