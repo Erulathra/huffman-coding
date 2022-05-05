@@ -2,12 +2,20 @@ import socket
 from enum import Enum
 import huffman as h
 
-
 class message_type_enum(Enum):
     text = bytes('T', 'ascii')
     file = bytes('F', 'ascii')
 
 
+# Code description:
+# [CORE] - higher order functions, supposed to be called by user
+
+
+# creates connection header, containing information about:
+# - message (type, length)
+# - content length
+# - file name
+# - frequency table
 def create_connection_header(message_length: int, content_length, frequency_list: list[tuple[bytes, int]],
                              file_name: str = "") -> bytes:
     message_type = message_type_enum.text
@@ -35,6 +43,7 @@ def create_connection_header(message_length: int, content_length, frequency_list
     return bytes(header)
 
 
+# checks if header is of correct length and reads information about received mesage
 def read_data_from_header(header: bytes) -> (message_type_enum, int, str, str, list[tuple[bytes, int]]):
     if len(header) < 1024:
         raise WrongHeaderException()
@@ -61,6 +70,8 @@ def read_data_from_header(header: bytes) -> (message_type_enum, int, str, str, l
 
     return message_type, message_length, content_length, filename, frequency_table
 
+
+# [CORE]
 
 def send_data(sender_socket: socket.socket, message: bytes, file_name: str = ""):
     # encode message and calculate frequency table
